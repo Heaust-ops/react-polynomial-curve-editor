@@ -68,7 +68,7 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
       if (activePoint !== null && canvasRef.current) {
         let pointsCopy = [...points];
         if (!pointsCopy[activePoint]) return;
-        const pt = getPointByPageCoords(ev.pageX, ev.pageY);
+        const pt = getPointByPageCoords(ev.clientX, ev.clientY);
         pointsCopy[activePoint][0] = pt[0];
         pointsCopy[activePoint][1] = pt[1];
         setpoints(pointsCopy);
@@ -80,8 +80,8 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
         const pointsCopy = [...points];
 
         const pt = getPointByPageCoords(
-          ev.touches[0].pageX,
-          ev.touches[0].pageY
+          ev.touches[0].clientX,
+          ev.touches[0].clientY
         );
         pointsCopy[activePoint][0] = pt[0];
         pointsCopy[activePoint][1] = pt[1];
@@ -141,7 +141,7 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
         width: "min(32rem, 95vw)",
         height: "18rem",
         touchAction: "none",
-        background: "#ccc",
+        background: "#cccccc",
         ...wrapperStyle,
         position: "relative",
       }}
@@ -151,12 +151,15 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
         onContextMenu={(ev) => {
           ev.preventDefault();
           if (socketStrategy === SocketStrategy.curveToPoint) {
-            setpoints([...points, getPointByPageCoords(ev.pageX, ev.pageY)]);
+            setpoints([
+              ...points,
+              getPointByPageCoords(ev.clientX, ev.clientY),
+            ]);
           } else {
             const rect = (
               ev.target as HTMLCanvasElement
             ).getBoundingClientRect();
-            const x = clamp((ev.pageX - rect.left) / rect.width, [0, 1]);
+            const x = clamp((ev.clientX - rect.left) / rect.width, [0, 1]);
             const y = clamp(getPolyFunction(polyEq(points) ?? [])(x), [0, 1]);
             setpoints([...points, [x, y]]);
           }
