@@ -1,24 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import PolyCurveEditor from "./CurveEditor/PolyCurveEditor";
-import { Interpolator } from "./interpolation";
+import { gsap } from "gsap";
 
-let xPos = new Interpolator(0.01);
 let polynomial = (x: number) => 0.5;
 const clamp = (x: number, limits: [number, number]) =>
   Math.max(limits[0], Math.min(x, limits[1]));
 
 function App() {
   const [x, setx] = useState(0);
+  const tl = useRef(gsap.timeline());
+  const xPos = useRef({ x: 0 });
+
   useEffect(() => {
+    tl.current.to(xPos.current, { x: 100 });
+    tl.current.pause();
+    tl.current.timeScale(0.01);
+    let t = 0;
     const inter = setInterval(() => {
-      const factor = polynomial(xPos.current / 100);
-      if (factor > 0) xPos.speedFactor = clamp(factor, [0, 100]);
-      setx(xPos.current);
+      t++;
+      const factor = clamp(polynomial(xPos.current.x / 100), [0.01, 1]);
+      if (t%3===0) tl.current.timeScale(factor/2);
+      setx(xPos.current.x);
     }, 16);
 
     return () => clearInterval(inter);
   }, []);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -26,7 +34,7 @@ function App() {
           <button
             className="button"
             onClick={() => {
-              xPos.next = 100;
+              tl.current.play();
             }}
           >
             Play
@@ -34,7 +42,8 @@ function App() {
           <button
             className="button"
             onClick={() => {
-              xPos = new Interpolator(0.01);
+              tl.current.restart();
+              tl.current.pause();
             }}
           >
             Reset
@@ -42,6 +51,7 @@ function App() {
         </div>
         <br />
         <PolyCurveEditor
+          wrapperStyle={{ resize: "both", overflow: "hidden" }}
           setPolynomial={(poly) => {
             polynomial = poly;
           }}
@@ -58,8 +68,9 @@ function App() {
               height: "5rem",
               margin: "2rem",
               borderRadius: "50%",
-              border: "3px solid black",
-              background: "#fff",
+              background: `radial-gradient(#00fbff, #0015ff)`,
+              filter: "brightness(0.8)",
+              boxShadow: "0 0 10px 2px white",
             }}
           />
         </div>

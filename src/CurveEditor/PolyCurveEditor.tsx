@@ -28,6 +28,22 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
   const [points, setpoints] = useState([] as number[][]);
   const [activePoint, setactivePoint] = useState(null as null | number);
 
+  /**
+   * Correct curve on canvas resize
+   */
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const resizeObserver = new ResizeObserver(() => {
+      setpoints([...points]);
+    });
+    resizeObserver.observe(canvasRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, [points]);
+
+  /**
+   * Attach global listeners for certain events
+   */
   useEffect(() => {
     const removeActivePoints = () => {
       setactivePoint(null);
@@ -63,6 +79,9 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
     };
   }, [activePoint, points]);
 
+  /**
+   * Redraw everytime there's a change
+   */
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
