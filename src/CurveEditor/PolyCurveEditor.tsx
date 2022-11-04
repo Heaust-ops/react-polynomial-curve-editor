@@ -149,6 +149,7 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
       style={{
         width: "32rem",
         height: "18rem",
+        touchAction: "none",
         background: "#ccc",
         ...wrapperStyle,
         position: "relative",
