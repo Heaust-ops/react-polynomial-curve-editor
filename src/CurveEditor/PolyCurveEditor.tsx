@@ -90,7 +90,7 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
           [0, 1]
         );
         const fy = clamp(
-          pointsCopy[activePoint][1] - movement.x / rect.height,
+          pointsCopy[activePoint][1] - movement.y / rect.height,
           [0, 1]
         );
         pointsCopy[activePoint][0] = fx;
