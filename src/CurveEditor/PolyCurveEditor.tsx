@@ -12,6 +12,7 @@ interface PolyCurveEditorProps {
   polynomialScale?: number;
 }
 
+let prevTouch: Touch;
 const clamp = (x: number, limits: [number, number]) =>
   Math.max(limits[0], Math.min(x, limits[1]));
 
@@ -70,12 +71,45 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
       }
     };
 
+    const handleTouchMove = (ev: TouchEvent) => {
+      const touch = ev.touches[0];
+      if (!prevTouch) prevTouch = touch;
+      const movement = {
+        x: touch.pageX - prevTouch.pageX,
+        y: touch.pageY - prevTouch.pageY,
+      };
+      console.log(Object.values(movement));
+      if (activePoint !== null && canvasRef.current) {
+        const rect = canvasRef.current.getBoundingClientRect();
+
+        const pointsCopy = [...points];
+        if (!pointsCopy[activePoint]) return;
+
+        const fx = clamp(
+          pointsCopy[activePoint][0] + movement.x / rect.width,
+          [0, 1]
+        );
+        const fy = clamp(
+          pointsCopy[activePoint][1] - movement.x / rect.height,
+          [0, 1]
+        );
+        pointsCopy[activePoint][0] = fx;
+        pointsCopy[activePoint][1] = fy;
+        setpoints(pointsCopy);
+      }
+      prevTouch = touch;
+    };
+
     document.addEventListener("mouseup", removeActivePoints);
+    document.addEventListener("touchend", removeActivePoints);
     document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("touchmove", handleTouchMove);
 
     return () => {
       document.removeEventListener("mouseup", removeActivePoints);
+      document.removeEventListener("touchend", removeActivePoints);
       document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("touchmove", handleTouchMove);
     };
   }, [activePoint, points]);
 
@@ -136,6 +170,9 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
         points.map((point, index) => (
           <div
             draggable={false}
+            onTouchStart={() => {
+              setactivePoint(index);
+            }}
             onMouseDown={() => {
               setactivePoint(index);
             }}
@@ -154,12 +191,12 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
               position: "absolute",
               left:
                 (point[0] * (canvasRef.current!.width ?? 1) -
-                  devicePixelRatio* socketSize / 2 -
+                  (devicePixelRatio * socketSize) / 2 -
                   3) /
                 devicePixelRatio,
               top:
                 ((1 - point[1]) * (canvasRef.current!.height ?? 1) -
-                  devicePixelRatio* socketSize / 2 -
+                  (devicePixelRatio * socketSize) / 2 -
                   3) /
                 devicePixelRatio,
             }}

@@ -163,7 +163,7 @@ function App() {
               borderRadius: "50%",
               background: `radial-gradient(#00fbff, #0015ff)`,
               filter: "brightness(0.8)",
-              boxShadow: "0 0 10px 2px white",
+              boxShadow: "0 0 5px 2px #9cd4c4",
             }}
           />
         </div>
