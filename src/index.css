@@ -84,3 +84,33 @@ code {
 .property:hover {
   filter: drop-shadow(0 0 2px black);
 }
+
+.ball {
+  background: -moz-linear-gradient(black, transparent); /* FF 3.6+ */
+  background: -ms-linear-gradient(black, transparent); /* IE10 */
+  background: -webkit-linear-gradient(
+    black,
+    transparent
+  ); /* Safari 5.1+, Chrome 10+ */
+  background: -o-linear-gradient(black, transparent); /* Opera 11.10 */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr=transparent); /* IE6 & IE7 */
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr=transparent)"; /* IE8+ */
+  background: linear-gradient(black, transparent); /* the standard */
+  z-index: 1;
+}
+
+.ball {
+  position: absolute;
+  width: 5rem;
+  height: 5rem;
+  margin: 2rem;
+  border-radius: 50%;
+  filter: brightness(0.8);
+  box-shadow: 0 0 5px 2px #9cd4c4;
+}
+
+@media (min-width:641px) {
+  .ball {
+    background-color: #ccc;
+  }
+}

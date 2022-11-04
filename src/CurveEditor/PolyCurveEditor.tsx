@@ -125,7 +125,7 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
       Math.round(devicePixelRatio * rect.bottom) -
       Math.round(devicePixelRatio * rect.top);
     ctx.lineWidth = stroke?.size ?? 6;
-    ctx.strokeStyle = stroke?.color ?? "#000";
+    ctx.strokeStyle = stroke?.color ?? "#000000";
     const w = canvasRef.current!.width;
     const h = canvasRef.current!.height;
     ctx.translate(-w / 2, h / 2);

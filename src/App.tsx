@@ -176,17 +176,8 @@ function App() {
         <br />
         <div style={{ width: "auto" }}>
           <div
-            style={{
-              position: "absolute",
-              left: `min(${x}vw, calc(100vw - 10rem))`,
-              width: "5rem",
-              height: "5rem",
-              margin: "2rem",
-              borderRadius: "50%",
-              background: `radial-gradient(#00fbff, #0015ff)`,
-              filter: "brightness(0.8)",
-              boxShadow: "0 0 5px 2px #9cd4c4",
-            }}
+            className="ball"
+            style={{ left: `min(${x}vw, calc(100vw - 10rem))` }}
           />
         </div>
       </header>
