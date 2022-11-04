@@ -138,7 +138,7 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
   return (
     <div
       style={{
-        width: "32rem",
+        width: "min(32rem, 95vw)",
         height: "18rem",
         touchAction: "none",
         background: "#ccc",
