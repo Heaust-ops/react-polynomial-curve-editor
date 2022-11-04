@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import PolyCurveEditor from "./CurveEditor/PolyCurveEditor";
+import PolyCurveEditor, { SocketStrategy } from "./CurveEditor/PolyCurveEditor";
 import { gsap } from "gsap";
 
 let polynomial = (x: number) => 0.5;
@@ -16,6 +16,9 @@ function App() {
   const [socketSize, setsocketSize] = useState(8);
   const [strokeSize, setstrokeSize] = useState(6);
   const [isPlaying, setisPlaying] = useState(false);
+  const [socketStrategy, setsocketStrategy] = useState(
+    SocketStrategy.pointToCurve
+  );
   const xPos = useRef({ x: 0 });
 
   const restart = () => {
@@ -79,6 +82,7 @@ function App() {
             ...(resizable ? { resize: "both", overflow: "hidden" } : {}),
             ...{ backgroundColor },
           }}
+          socketStrategy={socketStrategy}
           setPolynomial={(poly) => {
             polynomial = poly;
           }}
@@ -112,17 +116,35 @@ function App() {
           </div>
         </div>
         {/* ROW 2 */}
-
-        <div style={{ display: "flex" }} className="property">
-          <span className="unselectable" style={{ fontFamily: "sans-serif" }}>
-            Resizable
-          </span>
-          <input
-            className="check-input"
-            onChange={(e) => setresizable(e.target.checked)}
-            checked={resizable}
-            type="checkbox"
-          />
+        <div style={{ display: "flex" }}>
+          <div style={{ display: "flex" }} className="property">
+            <span className="unselectable" style={{ fontFamily: "sans-serif" }}>
+              Resizable
+            </span>
+            <input
+              className="check-input"
+              onChange={(e) => setresizable(e.target.checked)}
+              checked={resizable}
+              type="checkbox"
+            />
+          </div>
+          <div style={{ display: "flex" }} className="property">
+            <span className="unselectable" style={{ fontFamily: "sans-serif" }}>
+              Curve to Point
+            </span>
+            <input
+              className="check-input"
+              onChange={(e) =>
+                setsocketStrategy(
+                  e.target.checked
+                    ? SocketStrategy.curveToPoint
+                    : SocketStrategy.pointToCurve
+                )
+              }
+              checked={socketStrategy === SocketStrategy.curveToPoint}
+              type="checkbox"
+            />
+          </div>
         </div>
         {/* ROW 3 */}
         <div style={{ display: "flex" }}>

@@ -2,6 +2,11 @@ import { CSSProperties, FC, useEffect, useRef, useState } from "react";
 import { drawCaller } from "./canvas";
 import { getPolyFunction, polyEq } from "./linearAlgebra";
 
+export enum SocketStrategy {
+  pointToCurve,
+  curveToPoint,
+}
+
 interface PolyCurveEditorProps {
   wrapperStyle?: CSSProperties;
   canvasStyle?: CSSProperties;
@@ -10,9 +15,9 @@ interface PolyCurveEditorProps {
   stroke?: { color?: string; size?: number };
   setPolynomial?: (polynomial: (x: number) => number) => void;
   polynomialScale?: number;
+  socketStrategy?: SocketStrategy;
 }
 
-let prevTouch: Touch;
 const clamp = (x: number, limits: [number, number]) =>
   Math.max(limits[0], Math.min(x, limits[1]));
 
@@ -24,10 +29,19 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
   socketSize = 8,
   setPolynomial = () => {},
   polynomialScale = 1,
+  socketStrategy = SocketStrategy.pointToCurve,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [points, setpoints] = useState([] as number[][]);
   const [activePoint, setactivePoint] = useState(null as null | number);
+
+  const getPointByPageCoords = (x: number, y: number) => {
+    if (!canvasRef.current) return [0, 0];
+    const rect = canvasRef.current.getBoundingClientRect();
+    const ptX = (clamp(x, [rect.left, rect.right]) - rect.left) / rect.width;
+    const ptY = (clamp(y, [rect.top, rect.bottom]) - rect.top) / rect.height;
+    return [ptX, 1 - ptY];
+  };
 
   /**
    * Correct curve on canvas resize
@@ -52,52 +66,29 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
 
     const handleMouseMove = (ev: MouseEvent) => {
       if (activePoint !== null && canvasRef.current) {
-        const rect = canvasRef.current.getBoundingClientRect();
-
-        const pointsCopy = [...points];
+        let pointsCopy = [...points];
         if (!pointsCopy[activePoint]) return;
-
-        const fx = clamp(
-          pointsCopy[activePoint][0] + ev.movementX / rect.width,
-          [0, 1]
-        );
-        const fy = clamp(
-          pointsCopy[activePoint][1] - ev.movementY / rect.height,
-          [0, 1]
-        );
-        pointsCopy[activePoint][0] = fx;
-        pointsCopy[activePoint][1] = fy;
+        const pt = getPointByPageCoords(ev.pageX, ev.pageY);
+        pointsCopy[activePoint][0] = pt[0];
+        pointsCopy[activePoint][1] = pt[1];
         setpoints(pointsCopy);
       }
     };
 
     const handleTouchMove = (ev: TouchEvent) => {
-      const touch = ev.touches[0];
-      if (!prevTouch) prevTouch = touch;
-      const movement = {
-        x: touch.pageX - prevTouch.pageX,
-        y: touch.pageY - prevTouch.pageY,
-      };
-      console.log(Object.values(movement));
       if (activePoint !== null && canvasRef.current) {
-        const rect = canvasRef.current.getBoundingClientRect();
-
         const pointsCopy = [...points];
-        if (!pointsCopy[activePoint]) return;
 
-        const fx = clamp(
-          pointsCopy[activePoint][0] + movement.x / rect.width,
-          [0, 1]
+        const pt = getPointByPageCoords(
+          ev.touches[0].pageX,
+          ev.touches[0].pageY
         );
-        const fy = clamp(
-          pointsCopy[activePoint][1] - movement.y / rect.height,
-          [0, 1]
-        );
-        pointsCopy[activePoint][0] = fx;
-        pointsCopy[activePoint][1] = fy;
+        pointsCopy[activePoint][0] = pt[0];
+        pointsCopy[activePoint][1] = pt[1];
+
+        if (!pointsCopy[activePoint]) return;
         setpoints(pointsCopy);
       }
-      prevTouch = touch;
     };
 
     document.addEventListener("mouseup", removeActivePoints);
@@ -159,10 +150,16 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
         draggable={false}
         onContextMenu={(ev) => {
           ev.preventDefault();
-          const rect = (ev.target as HTMLCanvasElement).getBoundingClientRect();
-          const x = clamp((ev.pageX - rect.left) / rect.width, [0, 1]);
-          const y = clamp(getPolyFunction(polyEq(points) ?? [])(x), [0, 1]);
-          setpoints([...points, [x, y]]);
+          if (socketStrategy === SocketStrategy.curveToPoint) {
+            setpoints([...points, getPointByPageCoords(ev.pageX, ev.pageY)]);
+          } else {
+            const rect = (
+              ev.target as HTMLCanvasElement
+            ).getBoundingClientRect();
+            const x = clamp((ev.pageX - rect.left) / rect.width, [0, 1]);
+            const y = clamp(getPolyFunction(polyEq(points) ?? [])(x), [0, 1]);
+            setpoints([...points, [x, y]]);
+          }
         }}
         ref={canvasRef}
         style={{ width: "100%", height: "100%", ...canvasStyle }}
