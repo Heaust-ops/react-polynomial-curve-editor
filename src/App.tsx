@@ -59,6 +59,11 @@ function App() {
           <button
             className="button"
             onClick={() => {
+              if (!isPlaying)
+                window.scrollTo({
+                  top: document.body.scrollHeight,
+                  behavior: "smooth",
+                });
               setisPlaying(!isPlaying);
             }}
           >
@@ -177,9 +182,12 @@ function App() {
         <div style={{ width: "auto" }}>
           <div
             className="ball"
-            style={{ left: `min(${x}vw, calc(100vw - 10rem))` }}
+            style={{ left: `min(${x}vw, calc(100vw - 3 * min(5rem, 5vw)))` }}
           />
         </div>
+        <br />
+        <br />
+        <div style={{ width: 2, height: 25 }} />
       </header>
     </div>
   );
