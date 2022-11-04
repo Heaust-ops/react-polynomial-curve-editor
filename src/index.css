@@ -109,9 +109,3 @@ code {
   filter: brightness(0.8);
   box-shadow: 0 0 5px 2px #9cd4c4;
 }
-
-@media (min-width:641px) {
-  .ball {
-    background-color: #cccccc;
-  }
-}
