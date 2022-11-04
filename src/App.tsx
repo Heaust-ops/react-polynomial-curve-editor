@@ -15,22 +15,39 @@ function App() {
   const [strokeColor, setstrokeColor] = useState("#000");
   const [socketSize, setsocketSize] = useState(8);
   const [strokeSize, setstrokeSize] = useState(6);
+  const [isPlaying, setisPlaying] = useState(false);
   const xPos = useRef({ x: 0 });
+
+  const restart = () => {
+    setx(0);
+    tl.current.restart();
+  };
 
   useEffect(() => {
     tl.current.to(xPos.current, { x: 100 });
     tl.current.pause();
+    let inter: NodeJS.Timer;
     tl.current.timeScale(0.01);
-    let t = 0;
-    const inter = setInterval(() => {
-      t++;
-      const factor = clamp(polynomial(xPos.current.x / 100), [0.01, 1]);
-      if (t % 3 === 0) tl.current.timeScale((factor) / 2);
-      setx(xPos.current.x);
-    }, 16);
 
-    return () => clearInterval(inter);
-  }, []);
+    if (isPlaying) {
+      if (xPos.current.x >= 100) restart();
+      tl.current.play();
+      inter = setInterval(() => {
+        if (xPos.current.x >= 100) {
+          setisPlaying(false);
+          return;
+        }
+        const factor = clamp(polynomial(xPos.current.x / 100), [0.001, 1]);
+        tl.current.timeScale(factor / 2);
+        setx(xPos.current.x);
+      }, 5);
+    } else tl.current.pause();
+
+    /** Cleanup */
+    return () => {
+      if (inter) clearInterval(inter);
+    };
+  }, [isPlaying]);
 
   return (
     <div className="App">
@@ -39,16 +56,16 @@ function App() {
           <button
             className="button"
             onClick={() => {
-              tl.current.play();
+              setisPlaying(!isPlaying);
             }}
           >
-            Play
+            {isPlaying ? "Pause" : "Play"}
           </button>
           <button
             className="button"
             onClick={() => {
-              tl.current.restart();
-              tl.current.pause();
+              setisPlaying(false);
+              restart();
             }}
           >
             Reset
@@ -95,7 +112,7 @@ function App() {
           </div>
         </div>
         {/* ROW 2 */}
-        
+
         <div style={{ display: "flex" }} className="property">
           <span className="unselectable" style={{ fontFamily: "sans-serif" }}>
             Resizable
