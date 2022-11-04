@@ -153,10 +153,15 @@ const PolyCurveEditor: FC<PolyCurveEditorProps> = ({
               ...socketStyle,
               position: "absolute",
               left:
-                point[0] * (canvasRef.current!.width ?? 1) - socketSize / 1.5,
+                (point[0] * (canvasRef.current!.width ?? 1) -
+                  devicePixelRatio* socketSize / 2 -
+                  3) /
+                devicePixelRatio,
               top:
-                (1 - point[1]) * (canvasRef.current!.height ?? 1) -
-                socketSize / 1.5,
+                ((1 - point[1]) * (canvasRef.current!.height ?? 1) -
+                  devicePixelRatio* socketSize / 2 -
+                  3) /
+                devicePixelRatio,
             }}
             key={index}
           />

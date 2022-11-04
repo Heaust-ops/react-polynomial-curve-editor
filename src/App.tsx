@@ -10,6 +10,11 @@ const clamp = (x: number, limits: [number, number]) =>
 function App() {
   const [x, setx] = useState(0);
   const tl = useRef(gsap.timeline());
+  const [resizable, setresizable] = useState(false);
+  const [backgroundColor, setbackgroundColor] = useState("#cccccc");
+  const [strokeColor, setstrokeColor] = useState("#000");
+  const [socketSize, setsocketSize] = useState(8);
+  const [strokeSize, setstrokeSize] = useState(6);
   const xPos = useRef({ x: 0 });
 
   useEffect(() => {
@@ -20,7 +25,7 @@ function App() {
     const inter = setInterval(() => {
       t++;
       const factor = clamp(polynomial(xPos.current.x / 100), [0.01, 1]);
-      if (t%3===0) tl.current.timeScale(factor/2);
+      if (t % 3 === 0) tl.current.timeScale((factor) / 2);
       setx(xPos.current.x);
     }, 16);
 
@@ -51,13 +56,84 @@ function App() {
         </div>
         <br />
         <PolyCurveEditor
-          wrapperStyle={{ resize: "both", overflow: "hidden" }}
+          socketSize={socketSize}
+          stroke={{ color: strokeColor, size: strokeSize }}
+          wrapperStyle={{
+            ...(resizable ? { resize: "both", overflow: "hidden" } : {}),
+            ...{ backgroundColor },
+          }}
           setPolynomial={(poly) => {
             polynomial = poly;
           }}
         />
         <br />
-
+        {/* ROW 1 */}
+        <div style={{ display: "flex" }}>
+          <div className="property">
+            <span className="unselectable" style={{ fontFamily: "sans-serif" }}>
+              Background Color
+            </span>
+            <br />
+            <input
+              className="color-input"
+              onChange={(e) => setbackgroundColor(e.target.value)}
+              value={backgroundColor}
+              type="color"
+            />
+          </div>
+          <div className="property">
+            <span className="unselectable" style={{ fontFamily: "sans-serif" }}>
+              Stroke Color
+            </span>
+            <br />
+            <input
+              className="color-input"
+              onChange={(e) => setstrokeColor(e.target.value)}
+              value={strokeColor}
+              type="color"
+            />
+          </div>
+        </div>
+        {/* ROW 2 */}
+        
+        <div style={{ display: "flex" }} className="property">
+          <span className="unselectable" style={{ fontFamily: "sans-serif" }}>
+            Resizable
+          </span>
+          <input
+            className="check-input"
+            onChange={(e) => setresizable(e.target.checked)}
+            checked={resizable}
+            type="checkbox"
+          />
+        </div>
+        {/* ROW 3 */}
+        <div style={{ display: "flex" }}>
+          <div className="property">
+            <span className="unselectable" style={{ fontFamily: "sans-serif" }}>
+              Stroke Size
+            </span>
+            <br />
+            <input
+              className="color-input"
+              onChange={(e) => setstrokeSize(+e.target.value)}
+              value={strokeSize}
+              type="range"
+            />
+          </div>
+          <div className="property">
+            <span className="unselectable" style={{ fontFamily: "sans-serif" }}>
+              Socket Size
+            </span>
+            <br />
+            <input
+              className="color-input"
+              onChange={(e) => setsocketSize(+e.target.value)}
+              value={socketSize}
+              type="range"
+            />
+          </div>
+        </div>
         <br />
         <div style={{ width: "auto" }}>
           <div
